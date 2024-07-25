@@ -3,10 +3,10 @@
 #define QUEUE_HPP
 
 template <typename T, const int maxsize = 10> class Queue {
+public:
   T arr[maxsize];
   int front = -1, rear = -1;
 
-public:
   bool empty() const { return front == -1; }
 
   bool full() const {

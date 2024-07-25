@@ -2,28 +2,43 @@
 #ifndef RS_HPP
 #define RS_HPP
 
+#include "instruction.hpp"
 #include <cstdint>
 
-template <const int length> class ReservationStation {
+class InstBuffer {
 public:
-  class Inst {
-    int8_t name;
-    bool busy;
-    int8_t opcode;
-    int32_t vj, vk;
-    int8_t qj, qk;
-    int32_t imm;
-  } buffer[length];
+  RSName name = None;
+  bool busy = false;
+  Mode mode = NONE;
+  int32_t serial = 0;
+  // Inst inst;
+  int32_t vj = 0, vk = 0;
+  int32_t qj = 0, qk = 0;
+  int32_t imm = 0;
+
+  InstBuffer(RSName _name) : name(_name) {}
+
+  InstBuffer() {}
+
+  ~InstBuffer() {}
+};
+
+class ReservationStation {
+public:
+  InstBuffer buffer[3];
 
   ReservationStation();
 
-  virtual ~ReservationStation() = 0;
+  ~ReservationStation() {}
 
-  virtual bool full() const = 0;
+  bool full() const;
 
-  virtual bool launch() = 0;
+  void execute();
 
-  virtual bool empty() const = 0;
+  bool read(const Inst &inst);
+
+  bool empty() const;
+
+  int free() const;
 };
-
 #endif
