@@ -17,6 +17,7 @@ void Inst::decode(int32_t command) {
   } else if (opcode == 0b001'0111) { // auipc
     rd = get_bits(command, 11, 7);
     imm = get_bits(command, 31, 12) << 12;
+    imm += pc; // imm = pc + offset
 
   } else if (opcode == 0b110'1111) { // jal
     rd = get_bits(command, 11, 7);
@@ -49,6 +50,7 @@ void Inst::decode(int32_t command) {
     imm |= get_bits(command, 31, 31) << 12;
     imm |= get_bits(command, 30, 25) << 5;
     imm = signed_extend(imm, 12);
+    imm += pc; // imm = pc + offset;
 
   } else if (opcode == 0b000'0011) { // lb / lh / lw / lbu / lhu
     subop1 = get_bits(command, 14, 12);

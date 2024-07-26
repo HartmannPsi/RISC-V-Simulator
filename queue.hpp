@@ -7,6 +7,10 @@ public:
   T arr[maxsize];
   int front = -1, rear = -1;
 
+  Queue() {}
+
+  ~Queue() {}
+
   bool empty() const { return front == -1; }
 
   bool full() const {

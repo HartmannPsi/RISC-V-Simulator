@@ -4,9 +4,9 @@
 #include <istream>
 
 ReservationStation::ReservationStation() {
-  buffer[0].name = Add1;
-  buffer[1].name = Add2;
-  buffer[2].name = Add3;
+  buffer[0].name = ALURS1;
+  buffer[1].name = ALURS2;
+  buffer[2].name = ALURS3;
 }
 
 bool ReservationStation::full() const {
@@ -56,7 +56,7 @@ bool ReservationStation::read(const Inst &inst) {
 
   } else if (inst.opcode == 0b001'0111) { // auipc
     buf.imm = inst.imm;
-    buf.vj = pc;
+    buf.vj = 0;
     reg_depend[inst.rd] = buf.serial;
     buf.mode = ADDI;
 
@@ -185,10 +185,108 @@ void ReservationStation::execute() {
       buf.vk = cdb.val();
       buf.qk = 0;
     }
-    if (flag) {
+    if (flag || !buf.busy) {
       continue;
     }
-
     // do operations
+
+    int32_t res = 0;
+    bool branch = false;
+
+    if (buf.mode == ADDI) {
+      res = buf.imm + buf.vj;
+
+    } else if (buf.mode == BEQ) {
+      if (buf.vj == buf.vk) {
+        branch = true;
+      }
+
+    } else if (buf.mode == BNE) {
+      if (buf.vj != buf.vk) {
+        branch = true;
+      }
+
+    } else if (buf.mode == BLT) {
+      if (buf.vj < buf.vk) {
+        branch = true;
+      }
+
+    } else if (buf.mode == BGE) {
+      if (buf.vj >= buf.vk) {
+        branch = true;
+      }
+
+    } else if (buf.mode == BLTU) {
+      if (uint32_t(buf.vj) < uint32_t(buf.vk)) {
+        branch = true;
+      }
+
+    } else if (buf.mode == BGEU) {
+      if (uint32_t(buf.vj) >= uint32_t(buf.vk)) {
+        branch = true;
+      }
+
+    } else if (buf.mode == SLTI) {
+      res = ((buf.vj < buf.imm) ? 1 : 0);
+
+    } else if (buf.mode == SLTIU) {
+      res = ((uint32_t(buf.vj) < uint32_t(buf.imm)) ? 1 : 0);
+
+    } else if (buf.mode == XORI) {
+      res = buf.vj ^ buf.imm;
+
+    } else if (buf.mode == ORI) {
+      res = buf.vj | buf.imm;
+
+    } else if (buf.mode == ANDI) {
+      res = buf.vj & buf.imm;
+
+    } else if (buf.mode == SLLI) {
+      res = buf.vj << buf.imm;
+
+    } else if (buf.mode == SRLI) {
+      res = uint32_t(buf.vj) >> uint32_t(buf.imm);
+
+    } else if (buf.mode == SRAI) {
+      res = buf.vj >> buf.imm;
+
+    } else if (buf.mode == ADD) {
+      res = buf.vj + buf.vk;
+
+    } else if (buf.mode == SUB) {
+      res = buf.vj - buf.vk;
+
+    } else if (buf.mode == SLL) {
+      res = buf.vj << buf.vk;
+
+    } else if (buf.mode == SLT) {
+      res = ((buf.vj < buf.vk) ? 1 : 0);
+
+    } else if (buf.mode == SLTU) {
+      res = ((uint32_t(buf.vj) < uint32_t(buf.vk)) ? 1 : 0);
+
+    } else if (buf.mode == XOR) {
+      res = buf.vj ^ buf.vk;
+
+    } else if (buf.mode == SRL) {
+      res = uint32_t(buf.vj) >> uint32_t(buf.vk);
+
+    } else if (buf.mode == SRA) {
+      res = buf.vj >> buf.vk;
+
+    } else if (buf.mode == OR) {
+      res = buf.vj | buf.vk;
+
+    } else if (buf.mode == AND) {
+      res = buf.vj & buf.vk;
+    }
+
+    if (branch) { // branch to imm
+      // TODO
+    } else {
+      rob.submit(buf.serial, res);
+    }
+
+    buf.busy = false;
   }
 }

@@ -15,11 +15,11 @@ struct RoBUnit {
 
 class ReorderBuffer {
 public:
-  Queue<RoBUnit, 30> buf_queue;
+  Queue<RoBUnit, 100> buf_queue;
 
-  ReorderBuffer();
+  ReorderBuffer() {}
 
-  ~ReorderBuffer();
+  ~ReorderBuffer() {}
 
   bool push(int32_t _src);
 

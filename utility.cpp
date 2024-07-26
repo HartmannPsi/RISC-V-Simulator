@@ -54,7 +54,7 @@ void reg_update() {
     return;
   }
 
-  for (int i = 0; i != 33; ++i) {
+  for (int i = 0; i != 32; ++i) {
     if (reg_depend[i] == cdb.src()) {
       reg[i] = cdb.val();
       reg_depend[i] = 0;

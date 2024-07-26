@@ -4,8 +4,10 @@
 
 #include <cstdint>
 
+#include "BP.hpp"
 #include "CDB.hpp"
 #include "FOQ.hpp"
+#include "LSB.hpp"
 #include "RS.hpp"
 #include "RoB.hpp"
 #include "instruction.hpp"

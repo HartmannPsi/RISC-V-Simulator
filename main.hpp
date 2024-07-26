@@ -6,9 +6,9 @@
 
 enum RSName : int8_t {
   None = 0b0000,
-  Add1 = 0b0001,
-  Add2 = 0b0010,
-  Add3 = 0b0011
+  ALURS1 = 0b0001,
+  ALURS2 = 0b0010,
+  ALURS3 = 0b0011
   // And1 = 0b0100,
   // And2 = 0b0101,
   // Or1 = 0b0110,
@@ -43,7 +43,15 @@ enum Mode : int8_t {
   BLT,
   BGE,
   BLTU,
-  BGEU
+  BGEU,
+  LB,
+  LH,
+  LW,
+  LBU,
+  LHU,
+  SB,
+  SH,
+  SW
 };
 
 extern int32_t reg[33];
@@ -52,8 +60,17 @@ extern int32_t &pc;
 extern int32_t &pc_depend;
 extern int8_t mem[1 << 20];
 extern int32_t clk;
+extern int32_t nxt_pc;
 
 class CommonDataBus;
 extern CommonDataBus cdb;
+class ReservationStation;
+extern ReservationStation rs;
+class FpOpQueue;
+extern FpOpQueue foq;
+class ReorderBuffer;
+extern ReorderBuffer rob;
+class LSBuffer;
+extern LSBuffer lsb;
 
 #endif

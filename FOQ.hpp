@@ -12,6 +12,10 @@ public:
   bool fetch();
 
   bool launch();
+
+  FpOpQueue() {}
+
+  ~FpOpQueue() {}
 };
 
 #endif
