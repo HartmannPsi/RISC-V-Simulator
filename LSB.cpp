@@ -7,6 +7,13 @@ bool LSBuffer::full() const { return buffer.full(); }
 
 bool LSBuffer::empty() const { return buffer.empty(); }
 
+void LSBuffer::clear() {
+  while (!buffer.empty()) {
+    buffer.top() = LSInst();
+    buffer.pop();
+  }
+}
+
 bool LSBuffer::read(const Inst &inst) {
   if (buffer.full()) {
     return false;
@@ -18,8 +25,10 @@ bool LSBuffer::read(const Inst &inst) {
 
   if (inst.opcode == 0b000'0011) { // ld insts
 
+    tmp.ready = true;
     tmp.imm = inst.imm;
     reg_depend[inst.rd] = tmp.serial;
+    reg_depend[0] = 0;
     if (reg_depend[inst.rs1] == 0) { // no depend
       tmp.vj = reg[inst.rs1];
     } else {
@@ -41,6 +50,7 @@ bool LSBuffer::read(const Inst &inst) {
 
   } else if (inst.opcode == 0b010'0011) { // st insts
 
+    tmp.ready = false;
     tmp.imm = inst.imm;
     if (reg_depend[inst.rs1] == 0) { // no depend
       tmp.vj = reg[inst.rs1];
@@ -94,27 +104,40 @@ void LSBuffer::execute() {
     return;
   }
 
+  if (!buf.ready && cdb.active() && cdb.val() == buf.serial) {
+    buf.ready = true;
+  }
+
+  if (!buf.ready) {
+    return;
+  }
+
   if (buf.state == 3) { // carry out & broadcast
     int32_t res = 0;
 
     if (buf.mode == LB) {
       res = signed_extend(uint8_t(mem[buf.vj + buf.imm]), 7);
+      rob.submit(buf.serial, res);
 
     } else if (buf.mode == LBU) {
       res = uint8_t(mem[buf.vj + buf.imm]);
+      rob.submit(buf.serial, res);
 
     } else if (buf.mode == LH) {
       const uint8_t byte_low = mem[buf.vj + buf.imm],
                     byte_high = mem[buf.vj + buf.imm + 1];
       res = signed_extend((byte_high << 8) | byte_low, 15);
+      rob.submit(buf.serial, res);
 
     } else if (buf.mode == LHU) {
       const uint8_t byte_low = mem[buf.vj + buf.imm],
                     byte_high = mem[buf.vj + buf.imm + 1];
       res = (byte_high << 8) | byte_low;
+      rob.submit(buf.serial, res);
 
     } else if (buf.mode == LW) {
       res = fetch(buf.vj + buf.imm);
+      rob.submit(buf.serial, res);
 
     } else if (buf.mode == SB) {
       mem[buf.vj + buf.imm] = uint8_t(get_bits(res, 7, 0));
@@ -129,8 +152,6 @@ void LSBuffer::execute() {
       mem[buf.vj + buf.imm + 2] = uint8_t(get_bits(res, 23, 16));
       mem[buf.vj + buf.imm + 3] = uint8_t(get_bits(res, 31, 24));
     }
-
-    rob.submit(buf.serial, res);
 
   } else if (buf.state >= 0) { // in process
     ++buf.state;

@@ -25,6 +25,8 @@ public:
   void execute();
 
   void reset();
+
+  void clear();
 };
 
 #endif

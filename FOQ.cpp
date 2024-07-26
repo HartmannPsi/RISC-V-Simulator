@@ -1,13 +1,65 @@
 #include "headers.hpp"
+#include "main.hpp"
 #include "utility.hpp"
+#include <pthread.h>
+
+void FpOpQueue::lock() { locked = true; }
+
+void FpOpQueue::try_unlock() {
+  if (cdb.src() == unlock_inst) {
+    locked = false;
+  }
+}
+
+void FpOpQueue::clear() {
+  while (!opq.empty()) {
+    opq.pop();
+  }
+  locked = false;
+  unlock_inst = 0;
+}
 
 bool FpOpQueue::fetch() {
   if (opq.full()) {
     return false;
   }
+  if (locked) {
+    return false;
+  }
 
-  opq.push(::fetch(pc));
-  nxt_pc = pc + 4;
+  Inst inst(::fetch(pc));
+
+  if (::fetch(pc) == EOI) { // li a0 255
+    nxt_pc = pc;
+
+    return true;
+  }
+
+  if (inst.opcode == 0b110'1111) { // jal
+
+    nxt_pc = inst.imm;
+    inst.imm = pc + 4; // store to some regs
+    opq.push(inst);
+    rob.push(inst.serial);
+
+  } else if (inst.opcode == 0b110'0111) { // jalr
+
+    lock();
+    unlock_inst = inst.serial;
+    nxt_pc = pc;
+    opq.push(inst);
+    rob.push(inst.serial);
+
+  } else {
+
+    nxt_pc = pc + 4;
+    opq.push(inst);
+    if (inst.opcode == 0b010'0011) { // store insts
+      rob.push(inst.serial, false);
+    } else {
+      rob.push(inst.serial);
+    }
+  }
 
   return true;
 }
@@ -17,14 +69,9 @@ bool FpOpQueue::launch() {
     return false;
   }
 
-  Inst inst(opq.top());
+  auto &inst = opq.top();
 
-  if (inst.opcode == 0b110'1111) { // jal
-
-    // TODO
-    return false;
-
-  } else if (inst.opcode == 0b110'0111) { // jalr
+  if (inst.opcode == 0b110'0111) { // jalr
 
     // TODO
     return false;
@@ -34,7 +81,6 @@ bool FpOpQueue::launch() {
 
     const bool res = lsb.read(inst);
     if (res) {
-      rob.push(inst.serial);
       opq.pop();
       return true;
     } else {
@@ -45,7 +91,6 @@ bool FpOpQueue::launch() {
 
     const bool res = rs.read(inst);
     if (res) {
-      rob.push(inst.serial);
       opq.pop();
       return true;
     } else {

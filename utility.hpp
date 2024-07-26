@@ -1,4 +1,5 @@
 #pragma once
+#include "main.hpp"
 #ifndef UTILITY_HPP
 #define UTILITY_HPP
 
@@ -28,5 +29,8 @@ uint32_t get_bits(uint32_t command, uint32_t high_bit, uint32_t low_bit);
 
 // update the registers to newest value
 void reg_update();
+
+// clear the register file
+void reg_depend_clear();
 
 #endif

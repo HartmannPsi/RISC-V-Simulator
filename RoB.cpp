@@ -1,13 +1,13 @@
 #include "RoB.hpp"
 #include "headers.hpp"
 
-bool ReorderBuffer::push(int32_t _src) {
+bool ReorderBuffer::push(int32_t _src, bool _busy) {
   if (buf_queue.full()) {
     return false;
   }
 
   RoBUnit tmp;
-  tmp.busy = true;
+  tmp.busy = _busy;
   tmp.src = _src;
   buf_queue.push(tmp);
 
@@ -17,6 +17,13 @@ bool ReorderBuffer::push(int32_t _src) {
 bool ReorderBuffer::empty() const { return buf_queue.empty(); }
 
 bool ReorderBuffer::full() const { return buf_queue.full(); }
+
+void ReorderBuffer::clear() {
+  while (!buf_queue.empty()) {
+    buf_queue.top() = RoBUnit();
+    buf_queue.pop();
+  }
+}
 
 bool ReorderBuffer::pop() {
   if (buf_queue.empty()) {

@@ -36,6 +36,12 @@ int ReservationStation::free() const {
   return -1;
 }
 
+void ReservationStation::clear() {
+  for (int i = 0; i != 3; ++i) {
+    buffer[i].clear();
+  }
+}
+
 bool ReservationStation::read(const Inst &inst) {
   if (full()) {
     return false;
@@ -52,12 +58,14 @@ bool ReservationStation::read(const Inst &inst) {
     buf.imm = inst.imm;
     buf.vj = 0;
     reg_depend[inst.rd] = buf.serial;
+    reg_depend[0] = 0;
     buf.mode = ADDI;
 
   } else if (inst.opcode == 0b001'0111) { // auipc
     buf.imm = inst.imm;
     buf.vj = 0;
     reg_depend[inst.rd] = buf.serial;
+    reg_depend[0] = 0;
     buf.mode = ADDI;
 
   } else if (inst.opcode == 0b110'0011) { // branch's
@@ -90,6 +98,7 @@ bool ReservationStation::read(const Inst &inst) {
   } else if (inst.opcode == 0b001'0011) { // imm operations
     buf.imm = inst.imm;
     reg_depend[inst.rd] = buf.serial;
+    reg_depend[0] = 0;
     if (reg_depend[inst.rs1] == 0) { // no depend
       buf.vj = reg[inst.rs1];
     } else {
@@ -118,6 +127,7 @@ bool ReservationStation::read(const Inst &inst) {
 
   } else if (inst.opcode == 0b011'0011) { // reg operations
     reg_depend[inst.rd] = buf.serial;
+    reg_depend[0] = 0;
     if (reg_depend[inst.rs1] == 0) { // no depend
       buf.vj = reg[inst.rs1];
     } else {
@@ -156,13 +166,23 @@ bool ReservationStation::read(const Inst &inst) {
     }
 
   } else if (inst.opcode == 0b110'1111) { // jal
-    buf.serial = 0;
-    buf.busy = false;
-    return false;
+    reg_depend[inst.rd] = buf.serial;
+    reg_depend[0] = 0;
+    buf.vj = 0;
+    buf.imm = inst.imm;
+    buf.mode = ADDI;
+
   } else if (inst.opcode == 0b110'0111) { // jalr
-    buf.serial = 0;
-    buf.busy = false;
-    return false;
+    reg_depend[inst.rd] = buf.serial;
+    reg_depend[0] = 0;
+    if (reg_depend[inst.rs1] == 0) { // no depend
+      buf.vj = reg[inst.rs1];
+    } else {
+      buf.qj = reg_depend[inst.rs1];
+    }
+    buf.imm = inst.imm;
+    buf.mode = JALR;
+
   } else {
     buf.serial = 0;
     buf.busy = false;
@@ -279,6 +299,9 @@ void ReservationStation::execute() {
 
     } else if (buf.mode == AND) {
       res = buf.vj & buf.vk;
+    } else { // jalr
+      res = pc + 4;
+      nxt_pc = (buf.vj + buf.imm) & (~1);
     }
 
     if (branch) { // branch to imm

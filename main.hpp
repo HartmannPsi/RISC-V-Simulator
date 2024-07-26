@@ -51,7 +51,8 @@ enum Mode : int8_t {
   LHU,
   SB,
   SH,
-  SW
+  SW,
+  JALR
 };
 
 extern int32_t reg[33];
@@ -72,5 +73,9 @@ class ReorderBuffer;
 extern ReorderBuffer rob;
 class LSBuffer;
 extern LSBuffer lsb;
+class BranchPredictor;
+extern BranchPredictor bp;
+
+constexpr int32_t EOI = 0x0ff00513;
 
 #endif

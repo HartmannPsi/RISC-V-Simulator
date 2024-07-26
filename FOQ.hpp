@@ -2,11 +2,14 @@
 #ifndef FOQ_HPP
 #define FOQ_HPP
 
+#include "instruction.hpp"
 #include "queue.hpp"
 #include <cstdint>
 
 class FpOpQueue {
-  Queue<int32_t, 6> opq;
+  Queue<Inst, 6> opq;
+  bool locked = false;
+  int32_t unlock_inst = 0;
 
 public:
   bool fetch();
@@ -16,6 +19,12 @@ public:
   FpOpQueue() {}
 
   ~FpOpQueue() {}
+
+  void lock();
+
+  void try_unlock();
+
+  void clear();
 };
 
 #endif

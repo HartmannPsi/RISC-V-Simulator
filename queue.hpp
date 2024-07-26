@@ -55,6 +55,12 @@ public:
     }
     return arr[front];
   }
+
+  void clear() {
+    while (!empty()) {
+      pop();
+    }
+  }
 };
 
 #endif

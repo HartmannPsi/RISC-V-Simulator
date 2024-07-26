@@ -23,3 +23,8 @@ void CommonDataBus::reset() {
   nxt_src = 0;
   nxt_value = 0;
 }
+
+void CommonDataBus::clear() {
+  _src = nxt_src = 0;
+  value = nxt_value = 0;
+}

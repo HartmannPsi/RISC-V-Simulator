@@ -21,6 +21,15 @@ public:
   InstBuffer() {}
 
   ~InstBuffer() {}
+
+  void clear() {
+    busy = false;
+    mode = NONE;
+    serial = 0;
+    vj = 0, vk = 0;
+    qj = 0, qk = 0;
+    imm = 0;
+  }
 };
 
 class ReservationStation {
@@ -40,5 +49,7 @@ public:
   bool empty() const;
 
   int free() const;
+
+  void clear();
 };
 #endif

@@ -13,6 +13,7 @@ struct LSInst {
   int32_t imm = 0;
   int32_t vj = 0, vk = 0, qj = 0, qk = 0;
   int8_t state = 0; // -1 for pending, 0 ~ 2 for carrying, 3 for done
+  bool ready = false;
 
   LSInst() {}
 
@@ -34,6 +35,8 @@ public:
   bool read(const Inst &inst);
 
   void execute();
+
+  void clear();
 };
 
 #endif

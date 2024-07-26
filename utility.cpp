@@ -50,14 +50,22 @@ uint32_t get_bits(uint32_t command, uint32_t high_bit, uint32_t low_bit) {
 }
 
 void reg_update() {
+  reg[0] = reg_depend[0] = 0;
   if (!cdb.active()) {
     return;
   }
 
-  for (int i = 0; i != 32; ++i) {
+  for (int i = 1; i != 32; ++i) {
     if (reg_depend[i] == cdb.src()) {
       reg[i] = cdb.val();
       reg_depend[i] = 0;
     }
+  }
+}
+
+// clear the register file
+void reg_depend_clear() {
+  for (int i = 0; i != 32; ++i) {
+    reg_depend[i] = 0;
   }
 }

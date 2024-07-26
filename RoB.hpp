@@ -21,7 +21,7 @@ public:
 
   ~ReorderBuffer() {}
 
-  bool push(int32_t _src);
+  bool push(int32_t _src, bool _busy = true);
 
   bool empty() const;
 
@@ -30,6 +30,8 @@ public:
   bool pop();
 
   void submit(int32_t _src, int32_t _val);
+
+  void clear();
 };
 
 #endif

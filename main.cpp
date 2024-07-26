@@ -1,4 +1,6 @@
+#include "BP.hpp"
 #include "headers.hpp"
+#include "utility.hpp"
 #include <cstdint>
 #include <iostream>
 
@@ -15,14 +17,26 @@ ReservationStation rs;
 FpOpQueue foq;
 ReorderBuffer rob;
 LSBuffer lsb;
+BranchPredictor bp;
 
 int main() {
   while (true) { // clock cycle
+
     pc = nxt_pc;
-    foq.launch();
+
     cdb.execute();
-    reg_update();
+    foq.try_unlock();
+    foq.fetch();
+    foq.launch();
     rs.execute();
+    lsb.execute();
+    reg_update();
+
+    if (fetch(pc) == EOI && rob.empty()) {
+      std::cout << get_bits(reg[10], 7, 0);
+      return 0;
+    }
+
     rob.pop();
     ++clk;
   }
