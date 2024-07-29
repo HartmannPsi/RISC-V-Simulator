@@ -21,6 +21,7 @@ void FpOpQueue::clear() {
 
 bool FpOpQueue::fetch() {
   if (opq.full()) {
+    // nxt_pc = pc;
     return false;
   }
   if (locked) {
@@ -50,6 +51,18 @@ bool FpOpQueue::fetch() {
     opq.push(inst);
     rob.push(inst.serial);
 
+  } else if (inst.opcode == 0b110'0011) { // branch's
+
+    const bool branch = bp.read(inst);
+
+    if (branch) { // branch
+      nxt_pc = inst.imm;
+    } else { // don't branch
+      nxt_pc = pc + 4;
+    }
+    opq.push(inst);
+    rob.push(inst.serial);
+
   } else {
 
     nxt_pc = pc + 4;
@@ -71,13 +84,7 @@ bool FpOpQueue::launch() {
 
   auto &inst = opq.top();
 
-  if (inst.opcode == 0b110'0111) { // jalr
-
-    // TODO
-    return false;
-
-  } else if (inst.opcode == 0b000'0011 ||
-             inst.opcode == 0b010'0011) { // ls insts
+  if (inst.opcode == 0b000'0011 || inst.opcode == 0b010'0011) { // ls insts
 
     const bool res = lsb.read(inst);
     if (res) {

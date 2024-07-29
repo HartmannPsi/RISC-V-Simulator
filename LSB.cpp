@@ -117,16 +117,19 @@ void LSBuffer::execute() {
 
     if (buf.mode == LB) {
       res = signed_extend(uint8_t(mem[buf.vj + buf.imm]), 7);
+      rs.update(buf.serial, res);
       rob.submit(buf.serial, res);
 
     } else if (buf.mode == LBU) {
       res = uint8_t(mem[buf.vj + buf.imm]);
+      rs.update(buf.serial, res);
       rob.submit(buf.serial, res);
 
     } else if (buf.mode == LH) {
       const uint8_t byte_low = mem[buf.vj + buf.imm],
                     byte_high = mem[buf.vj + buf.imm + 1];
       res = signed_extend((byte_high << 8) | byte_low, 15);
+      rs.update(buf.serial, res);
       rob.submit(buf.serial, res);
 
     } else if (buf.mode == LHU) {
@@ -153,7 +156,11 @@ void LSBuffer::execute() {
       mem[buf.vj + buf.imm + 3] = uint8_t(get_bits(res, 31, 24));
     }
 
+    buffer.pop();
+
   } else if (buf.state >= 0) { // in process
     ++buf.state;
   }
 }
+
+// void LSBuffer::update(int32_t src, int32_t res) {}

@@ -219,31 +219,37 @@ void ReservationStation::execute() {
     } else if (buf.mode == BEQ) {
       if (buf.vj == buf.vk) {
         branch = true;
+        res = 1;
       }
 
     } else if (buf.mode == BNE) {
       if (buf.vj != buf.vk) {
         branch = true;
+        res = 1;
       }
 
     } else if (buf.mode == BLT) {
       if (buf.vj < buf.vk) {
         branch = true;
+        res = 1;
       }
 
     } else if (buf.mode == BGE) {
       if (buf.vj >= buf.vk) {
         branch = true;
+        res = 1;
       }
 
     } else if (buf.mode == BLTU) {
       if (uint32_t(buf.vj) < uint32_t(buf.vk)) {
         branch = true;
+        res = 1;
       }
 
     } else if (buf.mode == BGEU) {
       if (uint32_t(buf.vj) >= uint32_t(buf.vk)) {
         branch = true;
+        res = 1;
       }
 
     } else if (buf.mode == SLTI) {
@@ -304,12 +310,26 @@ void ReservationStation::execute() {
       nxt_pc = (buf.vj + buf.imm) & (~1);
     }
 
-    if (branch) { // branch to imm
-      // TODO
-    } else {
-      rob.submit(buf.serial, res);
-    }
+    update(buf.serial, res);
+    rob.submit(buf.serial, res);
 
     buf.busy = false;
+  }
+}
+
+void ReservationStation::update(int32_t src, int32_t res) {
+  for (int iter = 0; iter != 3; ++iter) {
+    auto &buf = buffer[iter];
+    if (!buf.busy) {
+      continue;
+    }
+    if (buf.qj == src) {
+      buf.vj = res;
+      buf.qj = 0;
+    }
+    if (buf.qk == src) {
+      buf.vk = res;
+      buf.qk = 0;
+    }
   }
 }

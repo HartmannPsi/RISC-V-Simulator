@@ -25,6 +25,7 @@ int main() {
     pc = nxt_pc;
 
     cdb.execute();
+    bp.monitor();
     foq.try_unlock();
     foq.fetch();
     foq.launch();

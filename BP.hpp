@@ -37,10 +37,19 @@ public:
   bool predict() const { return state == WT || state == ST; }
 };
 
+struct BPUnit {
+  int32_t src = 0, fail = 0;
+  bool branch = false;
+
+  BPUnit() {}
+
+  ~BPUnit() {}
+};
+
 class BranchPredictor {
   PredictFSM fsm;
   int32_t branch_num = 0, success_num = 0;
-  Queue<std::pair<int32_t, bool>, 6> brq;
+  Queue<BPUnit, 6> brq;
 
 public:
   BranchPredictor() {}
