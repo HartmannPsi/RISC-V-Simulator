@@ -11,6 +11,7 @@ public:
   uint8_t rs1 = -1, rs2 = -1, rd = -1;
   int32_t imm = 0;
   int32_t serial = 0;
+  int32_t addr = 0;
 
   Inst() {}
 

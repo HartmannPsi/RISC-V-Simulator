@@ -25,6 +25,8 @@ public:
   void try_unlock();
 
   void clear();
+
+  void print_top();
 };
 
 #endif

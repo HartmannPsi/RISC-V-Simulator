@@ -10,6 +10,7 @@ void Inst::decode(int32_t command) {
 
   // TODO: SIGNED-EXTEND
 
+  addr = pc;
   serial = clk + 1;
   opcode = get_opcode(command);
   if (opcode == 0b011'0111) { // lui
@@ -106,6 +107,7 @@ void Inst::decode(int32_t command) {
 }
 
 void Inst::print() {
+  std::cout << '@' << addr << " SER " << serial << ": ";
   std::cout << std::hex;
   if (opcode == 0b011'0111) { // lui
     std::cout << "lui " << uint32_t(rd) << ' ' << imm << '\n';
@@ -150,6 +152,7 @@ void Inst::print() {
 
   } else if (opcode == 0b011'0011) { // add / sub / sll / slt / sltu / xor / srl
                                      // sra / or / and
+
     std::cout << "op? " << uint32_t(rd) << ' ' << uint32_t(rs1) << ' '
               << uint32_t(rs2) << '\n';
     // if (subop1 == 0b000) { // add / sub

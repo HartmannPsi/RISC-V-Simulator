@@ -17,7 +17,7 @@ void CommonDataBus::execute() {
   _src = nxt_src;
   value = nxt_value;
   // print();
-  reset();
+  // reset();
 }
 
 void CommonDataBus::reset() {

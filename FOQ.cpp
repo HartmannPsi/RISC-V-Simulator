@@ -1,6 +1,7 @@
 #include "headers.hpp"
 #include "main.hpp"
 #include "utility.hpp"
+#include <asm-generic/errno.h>
 #include <iomanip>
 #include <iostream>
 //#include <pthread.h>
@@ -33,8 +34,8 @@ bool FpOpQueue::fetch() {
   Inst inst(::fetch(pc));
 
   // std::cout << "@" << std::hex << pc << ": ";
-  // inst.print();
-  // std::cout << std::endl;
+  inst.print();
+  std::cout << std::endl;
 
   if (::fetch(pc) == EOI) { // li a0 255
     nxt_pc = pc;
@@ -121,4 +122,13 @@ bool FpOpQueue::launch() {
       return false;
     }
   }
+}
+
+void FpOpQueue::print_top() {
+  std::cout << "FOQ TOP: ";
+  if (opq.empty()) {
+    std::cout << "NONE\n";
+    return;
+  }
+  opq.top().print();
 }

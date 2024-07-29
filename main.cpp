@@ -3,6 +3,7 @@
 #include "utility.hpp"
 #include <cstdint>
 #include <iostream>
+#define DEBUG
 
 int32_t reg[33] = {};
 int32_t reg_depend[33] = {};
@@ -27,6 +28,7 @@ void stopat(int t) {
 
 int main() {
 
+  std::cout << std::hex;
   input_process();
 
   // print_mem(0x1000, 0x10f0);
@@ -36,16 +38,18 @@ int main() {
 
   while (true) { // clock cycle
 
+    std::cout << "-------------------------------------------\n";
+
     pc = nxt_pc;
 
     cdb.execute();
-    bp.monitor();
     foq.try_unlock();
     foq.fetch();
     foq.launch();
     rs.execute();
     lsb.execute();
     reg_update();
+    bp.monitor();
 
     if (fetch(pc) == EOI && rob.empty()) {
       std::cout << std::dec << get_bits(reg[10], 7, 0) << '\n';
@@ -55,13 +59,15 @@ int main() {
     rob.pop();
     ++clk;
 
-    // rs.print();
-    // lsb.print();
+#ifdef DEBUG
+    foq.print_top();
+    rs.print();
+    lsb.print();
     // print_reg();
-    // rob.print_first();
-    // cdb.print();
-
-    // stopat(80);
+    rob.print_first();
+    cdb.print();
+    stopat(0xfff);
+#endif
   }
 
   return 0;
