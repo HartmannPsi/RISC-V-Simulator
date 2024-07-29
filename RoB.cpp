@@ -43,10 +43,26 @@ bool ReorderBuffer::pop() {
 }
 
 void ReorderBuffer::submit(int32_t _src, int32_t _val) {
-  for (int i = buf_queue.front; i != buf_queue.rear; i = (i + 1) % 30) {
+
+  for (int i = 0; i != 100; ++i) {
     if (buf_queue.arr[i].src == _src) {
       buf_queue.arr[i].busy = false;
       buf_queue.arr[i].val = _val;
     }
   }
+}
+
+void ReorderBuffer::print_first() {
+
+  std::cout << "RoB FIRST: ";
+
+  if (empty()) {
+    std::cout << "NONE\n";
+    return;
+  }
+
+  auto &tmp = buf_queue.top();
+
+  std::cout << "SER: " << tmp.src << " BUSY: " << (tmp.busy ? "TRUE" : "FALSE")
+            << " VAL: " << tmp.val << '\n';
 }

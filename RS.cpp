@@ -44,8 +44,11 @@ void ReservationStation::clear() {
 
 bool ReservationStation::read(const Inst &inst) {
   if (full()) {
+    // std::cout << "B" << std::endl;
     return false;
   }
+
+  // std::cout << "A" << std::endl;
 
   auto &buf = buffer[free()];
   buf.busy = true;
@@ -54,12 +57,13 @@ bool ReservationStation::read(const Inst &inst) {
   buf.serial = inst.serial;
   // buf.inst = inst;
 
-  if (inst.opcode == 0b011'0011) { // lui
+  if (inst.opcode == 0b011'0111) { // lui
     buf.imm = inst.imm;
     buf.vj = 0;
     reg_depend[inst.rd] = buf.serial;
     reg_depend[0] = 0;
     buf.mode = ADDI;
+    // std::cout << "C" << std::endl;
 
   } else if (inst.opcode == 0b001'0111) { // auipc
     buf.imm = inst.imm;
@@ -97,13 +101,13 @@ bool ReservationStation::read(const Inst &inst) {
 
   } else if (inst.opcode == 0b001'0011) { // imm operations
     buf.imm = inst.imm;
-    reg_depend[inst.rd] = buf.serial;
-    reg_depend[0] = 0;
     if (reg_depend[inst.rs1] == 0) { // no depend
       buf.vj = reg[inst.rs1];
     } else {
       buf.qj = reg_depend[inst.rs1];
     }
+    reg_depend[inst.rd] = buf.serial;
+    reg_depend[0] = 0;
 
     if (inst.subop1 == 0b000) { // addi
       buf.mode = ADDI;
@@ -126,9 +130,7 @@ bool ReservationStation::read(const Inst &inst) {
     }
 
   } else if (inst.opcode == 0b011'0011) { // reg operations
-    reg_depend[inst.rd] = buf.serial;
-    reg_depend[0] = 0;
-    if (reg_depend[inst.rs1] == 0) { // no depend
+    if (reg_depend[inst.rs1] == 0) {      // no depend
       buf.vj = reg[inst.rs1];
     } else {
       buf.qj = reg_depend[inst.rs1];
@@ -138,6 +140,8 @@ bool ReservationStation::read(const Inst &inst) {
     } else {
       buf.qk = reg_depend[inst.rs2];
     }
+    reg_depend[inst.rd] = buf.serial;
+    reg_depend[0] = 0;
 
     if (inst.subop1 == 0b000) { // add / sub
       if (inst.subop2 == 0b0) { // add
@@ -173,19 +177,21 @@ bool ReservationStation::read(const Inst &inst) {
     buf.mode = ADDI;
 
   } else if (inst.opcode == 0b110'0111) { // jalr
-    reg_depend[inst.rd] = buf.serial;
-    reg_depend[0] = 0;
+    buf.imm = inst.imm;
     if (reg_depend[inst.rs1] == 0) { // no depend
       buf.vj = reg[inst.rs1];
     } else {
       buf.qj = reg_depend[inst.rs1];
     }
-    buf.imm = inst.imm;
+    reg_depend[inst.rd] = buf.serial;
+    reg_depend[0] = 0;
+
     buf.mode = JALR;
 
   } else {
     buf.serial = 0;
     buf.busy = false;
+    // std::cout << "DDDD" << std::endl;
     return false;
   }
 
@@ -193,6 +199,9 @@ bool ReservationStation::read(const Inst &inst) {
 }
 
 void ReservationStation::execute() {
+
+  // print();
+
   for (int iter = 0; iter != 3; ++iter) {
     auto &buf = buffer[iter];
     const bool flag = (buf.qj != 0 || buf.qk != 0);
@@ -332,4 +341,33 @@ void ReservationStation::update(int32_t src, int32_t res) {
       buf.qk = 0;
     }
   }
+}
+
+void ReservationStation::print() {
+  std::cout << "RS STATE:\n";
+  for (int iter = 0; iter != 3; ++iter) {
+    auto &buf = buffer[iter];
+
+    if (!buf.busy) {
+      std::cout << "NONE\n";
+      continue;
+    }
+
+    std::cout << "MODE: " << buf.mode << " SER: " << buf.serial << "  DEP: ";
+
+    if (buf.qj == 0 && buf.qk == 0) {
+      std::cout << "NONE\n";
+
+    } else {
+      if (buf.qj != 0) {
+        std::cout << buf.qj << ' ';
+      }
+      if (buf.qk != 0) {
+        std::cout << buf.qk;
+      }
+      std::cout << '\n';
+    }
+  }
+
+  std::cout << std::endl;
 }

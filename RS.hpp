@@ -53,5 +53,7 @@ public:
   void update(int32_t src, int32_t res);
 
   void clear();
+
+  void print();
 };
 #endif

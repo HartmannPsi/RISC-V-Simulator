@@ -1,7 +1,9 @@
 #include "headers.hpp"
 #include "main.hpp"
 #include "utility.hpp"
-#include <pthread.h>
+#include <iomanip>
+#include <iostream>
+//#include <pthread.h>
 
 void FpOpQueue::lock() { locked = true; }
 
@@ -21,7 +23,7 @@ void FpOpQueue::clear() {
 
 bool FpOpQueue::fetch() {
   if (opq.full()) {
-    // nxt_pc = pc;
+    // std::cout << "bruh" << std::endl;
     return false;
   }
   if (locked) {
@@ -29,6 +31,10 @@ bool FpOpQueue::fetch() {
   }
 
   Inst inst(::fetch(pc));
+
+  // std::cout << "@" << std::hex << pc << ": ";
+  // inst.print();
+  // std::cout << std::endl;
 
   if (::fetch(pc) == EOI) { // li a0 255
     nxt_pc = pc;
@@ -84,6 +90,9 @@ bool FpOpQueue::launch() {
 
   auto &inst = opq.top();
 
+  // std::cout << "try launch ";
+  // inst.print();
+
   if (inst.opcode == 0b000'0011 || inst.opcode == 0b010'0011) { // ls insts
 
     const bool res = lsb.read(inst);
@@ -96,11 +105,19 @@ bool FpOpQueue::launch() {
 
   } else { // alu insts
 
+    // std::cout << "alu ";
+
     const bool res = rs.read(inst);
     if (res) {
       opq.pop();
+
+      // std::cout << "yes";
+      // std::cout << std::endl;
       return true;
     } else {
+
+      // std::cout << "no";
+      // std::cout << std::endl;
       return false;
     }
   }

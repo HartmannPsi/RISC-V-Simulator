@@ -40,6 +40,8 @@ public:
     } else {
       front = (front + 1) % maxsize;
     }
+
+    return true;
   }
 
   const T &top() const {
@@ -51,7 +53,8 @@ public:
 
   T &top() {
     if (empty()) {
-      return T();
+      throw "access to an empty queue";
+      // return T();
     }
     return arr[front];
   }

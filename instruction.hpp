@@ -19,6 +19,8 @@ public:
   Inst(int32_t command);
 
   void decode(int32_t command);
+
+  void print();
 };
 
 #endif

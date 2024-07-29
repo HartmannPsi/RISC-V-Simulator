@@ -33,4 +33,10 @@ void reg_update();
 // clear the register file
 void reg_depend_clear();
 
+void input_process();
+
+void print_mem(int32_t beg, int32_t end);
+
+void print_reg();
+
 #endif

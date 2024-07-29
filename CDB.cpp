@@ -16,6 +16,7 @@ void CommonDataBus::broadcast(int32_t name, int32_t val) {
 void CommonDataBus::execute() {
   _src = nxt_src;
   value = nxt_value;
+  // print();
   reset();
 }
 
@@ -27,4 +28,13 @@ void CommonDataBus::reset() {
 void CommonDataBus::clear() {
   _src = nxt_src = 0;
   value = nxt_value = 0;
+}
+
+void CommonDataBus::print() {
+  if (_src == 0) {
+    std::cout << "CDB: NONE" << std::endl;
+  } else {
+    std::cout << std::hex << "CDB: SRC: " << _src << " VAL: " << value
+              << std::endl;
+  }
 }

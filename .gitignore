@@ -1,2 +1,10 @@
 test.cpp
 test
+code
+build/
+sample/
+testcases/
+.out
+sw_gen.cpp
+sw_gen
+.in

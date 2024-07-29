@@ -20,7 +20,7 @@ void BranchPredictor::monitor() {
     return;
   }
 
-  const auto branch = brq.top();
+  const auto &branch = brq.top();
 
   if (branch.src == cdb.src()) {
     const bool res =

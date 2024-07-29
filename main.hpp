@@ -1,8 +1,10 @@
 #pragma once
+#include <ostream>
 #ifndef MAIN_HPP
 #define MAIN_HPP
 
 #include <cstdint>
+#include <iostream>
 
 enum RSName : int8_t {
   None = 0b0000,
@@ -59,7 +61,7 @@ extern int32_t reg[33];
 extern int32_t reg_depend[33];
 extern int32_t &pc;
 extern int32_t &pc_depend;
-extern int8_t mem[1 << 20];
+extern uint8_t mem[1 << 20];
 extern int32_t clk;
 extern int32_t nxt_pc;
 
@@ -77,5 +79,7 @@ class BranchPredictor;
 extern BranchPredictor bp;
 
 constexpr int32_t EOI = 0x0ff00513;
+
+std::ostream &operator<<(std::ostream &os, const Mode &op);
 
 #endif

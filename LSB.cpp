@@ -2,6 +2,7 @@
 #include "headers.hpp"
 #include "main.hpp"
 #include "utility.hpp"
+#include <sys/types.h>
 
 bool LSBuffer::full() const { return buffer.full(); }
 
@@ -27,14 +28,14 @@ bool LSBuffer::read(const Inst &inst) {
 
     tmp.ready = true;
     tmp.imm = inst.imm;
-    reg_depend[inst.rd] = tmp.serial;
-    reg_depend[0] = 0;
     if (reg_depend[inst.rs1] == 0) { // no depend
       tmp.vj = reg[inst.rs1];
     } else {
       tmp.qj = reg_depend[inst.rs1];
       tmp.state = -1;
     }
+    reg_depend[inst.rd] = tmp.serial;
+    reg_depend[0] = 0;
 
     if (inst.subop1 == 0b000) { // lb
       tmp.mode = LB;
@@ -86,6 +87,34 @@ void LSBuffer::execute() {
     return;
   }
 
+  for (int i = 0; i != 6; ++i) {
+    auto &buf = buffer.arr[i];
+
+    if (buf.mode == NONE) {
+      continue;
+    }
+    const bool flag = (buf.qj != 0 || buf.qk != 0);
+
+    if (!buf.ready && cdb.active() && cdb.src() == buf.serial) {
+      buf.ready = true;
+    }
+
+    if (buf.qj != 0 && cdb.src() == buf.qj) {
+      buf.vj = cdb.val();
+      buf.qj = 0;
+    }
+    if (buf.qk != 0 && cdb.src() == buf.qk) {
+      buf.vk = cdb.val();
+      buf.qk = 0;
+    }
+
+    if (flag) {
+      if (buf.qj == 0 && buf.qk == 0) {
+        buf.state = 0; // prepared
+      }
+    }
+  }
+
   auto &buf = buffer.top();
   const bool flag = (buf.qj != 0 || buf.qk != 0);
 
@@ -104,7 +133,7 @@ void LSBuffer::execute() {
     return;
   }
 
-  if (!buf.ready && cdb.active() && cdb.val() == buf.serial) {
+  if (!buf.ready && cdb.active() && cdb.src() == buf.serial) {
     buf.ready = true;
   }
 
@@ -116,25 +145,25 @@ void LSBuffer::execute() {
     int32_t res = 0;
 
     if (buf.mode == LB) {
-      res = signed_extend(uint8_t(mem[buf.vj + buf.imm]), 7);
+      res = signed_extend(uint32_t(mem[buf.vj + buf.imm]), 7);
       rs.update(buf.serial, res);
       rob.submit(buf.serial, res);
 
     } else if (buf.mode == LBU) {
-      res = uint8_t(mem[buf.vj + buf.imm]);
+      res = uint32_t(mem[buf.vj + buf.imm]);
       rs.update(buf.serial, res);
       rob.submit(buf.serial, res);
 
     } else if (buf.mode == LH) {
-      const uint8_t byte_low = mem[buf.vj + buf.imm],
-                    byte_high = mem[buf.vj + buf.imm + 1];
+      const uint32_t byte_low = mem[buf.vj + buf.imm],
+                     byte_high = mem[buf.vj + buf.imm + 1];
       res = signed_extend((byte_high << 8) | byte_low, 15);
       rs.update(buf.serial, res);
       rob.submit(buf.serial, res);
 
     } else if (buf.mode == LHU) {
-      const uint8_t byte_low = mem[buf.vj + buf.imm],
-                    byte_high = mem[buf.vj + buf.imm + 1];
+      const uint32_t byte_low = mem[buf.vj + buf.imm],
+                     byte_high = mem[buf.vj + buf.imm + 1];
       res = (byte_high << 8) | byte_low;
       rob.submit(buf.serial, res);
 
@@ -143,19 +172,28 @@ void LSBuffer::execute() {
       rob.submit(buf.serial, res);
 
     } else if (buf.mode == SB) {
-      mem[buf.vj + buf.imm] = uint8_t(get_bits(res, 7, 0));
+      // std::cout << "SB: " << get_bits(buf.vk, 7, 0);
+      mem[buf.vj + buf.imm] = uint8_t(get_bits(buf.vk, 7, 0));
+      // std::cout << " -> " << uint32_t(mem[buf.vj + buf.imm]) << '\n';
 
     } else if (buf.mode == SH) {
-      mem[buf.vj + buf.imm] = uint8_t(get_bits(res, 7, 0));
-      mem[buf.vj + buf.imm + 1] = uint8_t(get_bits(res, 15, 8));
+      mem[buf.vj + buf.imm] = uint8_t(get_bits(buf.vk, 7, 0));
+      mem[buf.vj + buf.imm + 1] = uint8_t(get_bits(buf.vk, 15, 8));
 
     } else if (buf.mode == SW) {
-      mem[buf.vj + buf.imm] = uint8_t(get_bits(res, 7, 0));
-      mem[buf.vj + buf.imm + 1] = uint8_t(get_bits(res, 15, 8));
-      mem[buf.vj + buf.imm + 2] = uint8_t(get_bits(res, 23, 16));
-      mem[buf.vj + buf.imm + 3] = uint8_t(get_bits(res, 31, 24));
+      // std::cout << "SW: " << get_bits(buf.vk, 31, 0);
+      mem[buf.vj + buf.imm] = uint8_t(get_bits(buf.vk, 7, 0));
+      mem[buf.vj + buf.imm + 1] = uint8_t(get_bits(buf.vk, 15, 8));
+      mem[buf.vj + buf.imm + 2] = uint8_t(get_bits(buf.vk, 23, 16));
+      mem[buf.vj + buf.imm + 3] = uint8_t(get_bits(buf.vk, 31, 24));
+
+      // std::cout << " -> " << uint32_t(mem[buf.vj + buf.imm]) << ' '
+      //           << uint32_t(mem[buf.vj + buf.imm + 1]) << ' '
+      //           << uint32_t(mem[buf.vj + buf.imm + 2]) << ' '
+      //           << uint32_t(mem[buf.vj + buf.imm + 3]) << '\n';
     }
 
+    buf.clear();
     buffer.pop();
 
   } else if (buf.state >= 0) { // in process
@@ -164,3 +202,71 @@ void LSBuffer::execute() {
 }
 
 // void LSBuffer::update(int32_t src, int32_t res) {}
+
+void LSBuffer::print() {
+  std::cout << "LSB STATE:\n";
+
+  for (int i = 0; i != 6; ++i) {
+    auto &buf = buffer.arr[i];
+    if (buf.mode == NONE) {
+      std::cout << "NONE\n";
+      continue;
+    }
+
+    std::cout << "MODE: " << buf.mode << " SER: " << buf.serial;
+
+    if (buf.qj == 0 && buf.qk == 0) {
+      std::cout << " STATE: ";
+      if (buf.ready) {
+        std::cout << int32_t(buf.state) << '\n';
+      } else {
+        std::cout << "NOT READY\n";
+      }
+
+    } else {
+      std::cout << " DEP: ";
+      if (buf.qj != 0) {
+        std::cout << buf.qj << ' ';
+      }
+      if (buf.qk != 0) {
+        std::cout << buf.qk;
+      }
+      std::cout << '\n';
+    }
+  }
+
+  std::cout << std::endl;
+}
+
+void LSBuffer::print_first() {
+  std::cout << "LSB FRONT STATE:\n";
+
+  auto &buf = buffer.top();
+  if (buf.mode == NONE) {
+    std::cout << "NONE\n";
+    return;
+  }
+
+  std::cout << "MODE: " << buf.mode << " SER: " << buf.serial;
+
+  if (buf.qj == 0 && buf.qk == 0) {
+    std::cout << " STATE: ";
+    if (buf.ready) {
+      std::cout << int32_t(buf.state) << '\n';
+    } else {
+      std::cout << "NOT READY\n";
+    }
+
+  } else {
+    std::cout << " DEP: ";
+    if (buf.qj != 0) {
+      std::cout << buf.qj << ' ';
+    }
+    if (buf.qk != 0) {
+      std::cout << buf.qk;
+    }
+    std::cout << '\n';
+  }
+
+  std::cout << std::endl;
+}

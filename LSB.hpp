@@ -18,6 +18,8 @@ struct LSInst {
   LSInst() {}
 
   ~LSInst() {}
+
+  void clear() { *this = LSInst(); }
 };
 
 class LSBuffer {
@@ -39,6 +41,10 @@ public:
   void execute();
 
   void clear();
+
+  void print();
+
+  void print_first();
 };
 
 #endif

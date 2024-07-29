@@ -32,6 +32,8 @@ public:
   void submit(int32_t _src, int32_t _val);
 
   void clear();
+
+  void print_first();
 };
 
 #endif

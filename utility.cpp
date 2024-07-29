@@ -1,5 +1,10 @@
+#include "utility.hpp"
 #include "headers.hpp"
 #include "main.hpp"
+#include <iomanip>
+#include <iostream>
+#include <sstream>
+#include <string>
 
 // fetch 4-byte instruction from memory, litte-endian
 uint32_t fetch(uint32_t addr) {
@@ -67,5 +72,56 @@ void reg_update() {
 void reg_depend_clear() {
   for (int i = 0; i != 32; ++i) {
     reg_depend[i] = 0;
+  }
+}
+
+void input_process() {
+  std::string line;
+  int32_t addr = 0;
+  while (!std::cin.eof()) {
+    std::getline(std::cin, line);
+    if (line[0] == '@') { // change addr
+      std::stringstream in(line.substr(1, 8));
+      in >> std::hex >> addr;
+      continue;
+    }
+
+    std::stringstream in(line);
+    while (!in.eof()) {
+      int tmp = 0;
+      in >> std::hex >> tmp;
+      mem[addr] = uint8_t(tmp);
+      ++addr;
+    }
+    --addr;
+  }
+}
+
+void print_mem(int32_t beg, int32_t end) {
+  int nl = 0;
+  for (int32_t addr = beg; addr != end + 1; ++addr) {
+    uint32_t tmp = uint8_t(mem[addr]);
+    std::cout << std::setfill('0') << std::setw(2) << std::hex << tmp << ' ';
+    ++nl;
+    if (nl == 16) {
+      std::cout << '\n';
+      nl = 0;
+    }
+  }
+
+  std::cout << '\n';
+}
+
+void print_reg() {
+  std::cout << "REG STATE:\n";
+  for (int32_t addr = 0; addr != 32; ++addr) {
+    std::cout << "reg " << std::setfill('0') << std::setw(2) << addr << ": "
+              << std::setfill('0') << std::setw(8) << std::hex << reg[addr];
+    std::cout << " DEP: ";
+    if (reg_depend[addr] != 0) {
+      std::cout << reg_depend[addr] << '\n';
+    } else {
+      std::cout << "NONE\n";
+    }
   }
 }

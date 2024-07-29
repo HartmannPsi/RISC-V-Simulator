@@ -27,6 +27,8 @@ public:
   void reset();
 
   void clear();
+
+  void print();
 };
 
 #endif
