@@ -33,9 +33,10 @@ bool FpOpQueue::fetch() {
 
   Inst inst(::fetch(pc));
 
-  // std::cout << "@" << std::hex << pc << ": ";
+#ifdef DEBUG
   inst.print();
   std::cout << std::endl;
+#endif
 
   if (::fetch(pc) == EOI) { // li a0 255
     nxt_pc = pc;
@@ -60,9 +61,14 @@ bool FpOpQueue::fetch() {
 
   } else if (inst.opcode == 0b110'0011) { // branch's
 
-    const bool branch = bp.read(inst);
+    const auto bp_res = bp.read(inst);
 
-    if (branch) { // branch
+    // if (!bp_res.second) { // bp is full
+    //   nxt_pc = pc;
+    //   return false;
+    // }
+
+    if (bp_res.first) { // branch
       nxt_pc = inst.imm;
     } else { // don't branch
       nxt_pc = pc + 4;

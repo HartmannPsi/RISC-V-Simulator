@@ -8,3 +8,5 @@ testcases/
 sw_gen.cpp
 sw_gen
 .in
+interpreter/
+.out2

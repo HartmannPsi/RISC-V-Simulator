@@ -49,7 +49,7 @@ struct BPUnit {
 class BranchPredictor {
   PredictFSM fsm;
   int32_t branch_num = 0, success_num = 0;
-  Queue<BPUnit, 6> brq;
+  Queue<BPUnit, 100> brq;
 
 public:
   BranchPredictor() {}
@@ -58,9 +58,11 @@ public:
 
   bool predict() const { return fsm.predict(); }
 
-  bool read(const Inst &inst);
+  std::pair<bool, bool> read(const Inst &inst); // <branch, res>
 
   void monitor();
+
+  double rate() { return double(success_num) / double(branch_num); }
 };
 
 #endif

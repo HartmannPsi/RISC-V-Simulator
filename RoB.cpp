@@ -3,6 +3,7 @@
 
 bool ReorderBuffer::push(int32_t _src, bool _busy) {
   if (buf_queue.full()) {
+    throw ReorderBuffer();
     return false;
   }
 

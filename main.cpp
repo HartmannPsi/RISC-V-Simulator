@@ -1,9 +1,11 @@
+//#define DEBUG
+//#define VIS
+
 #include "BP.hpp"
 #include "headers.hpp"
 #include "utility.hpp"
 #include <cstdint>
 #include <iostream>
-#define DEBUG
 
 int32_t reg[33] = {};
 int32_t reg_depend[33] = {};
@@ -37,9 +39,9 @@ int main() {
   // return 0;
 
   while (true) { // clock cycle
-
+#ifdef DEBUG
     std::cout << "-------------------------------------------\n";
-
+#endif
     pc = nxt_pc;
 
     cdb.execute();
@@ -53,6 +55,12 @@ int main() {
 
     if (fetch(pc) == EOI && rob.empty()) {
       std::cout << std::dec << get_bits(reg[10], 7, 0) << '\n';
+
+#ifdef VIS
+      std::cout << "clk: " << clk << " monitor rate: " << std::setprecision(5)
+                << bp.rate() << '\n';
+#endif
+
       return 0;
     }
 
@@ -66,7 +74,7 @@ int main() {
     // print_reg();
     rob.print_first();
     cdb.print();
-    stopat(0xfff);
+    stopat(0xffff);
 #endif
   }
 
