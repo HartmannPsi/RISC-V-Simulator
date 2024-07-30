@@ -22,6 +22,22 @@ ReorderBuffer rob;
 LSBuffer lsb;
 BranchPredictor bp;
 
+int32_t prev_reg[32] = {};
+/*
+void comp() {
+  bool output = false;
+  for (int i = 0; i != 32; ++i) {
+    if (reg[i] != prev_reg[i]) {
+      output = true;
+      prev_reg[i] = reg[i];
+    }
+  }
+
+  if (output) {
+    print_reg();
+  }
+}*/
+
 void stopat(int t) {
   if (clk > t) {
     exit(0);
@@ -29,6 +45,12 @@ void stopat(int t) {
 }
 
 int main() {
+
+  // int trouble = 0;
+
+  // int prev_val = 0;
+
+  // std::cout << "a0 LOWBIT:" << std::dec << prev_val << std::hex << '\n';
 
   std::cout << std::hex;
   input_process();
@@ -71,11 +93,28 @@ int main() {
     foq.print_top();
     rs.print();
     lsb.print();
-    // print_reg();
+    print_reg();
     rob.print_first();
     cdb.print();
     stopat(0xffff);
+
 #endif
+    // comp();
+
+    // if (prev_val != get_bits(reg[10], 7, 0)) {
+    //    std::cout << "a0 LOWBIT:" << std::dec << get_bits(reg[10], 7, 0)
+    //              << std::hex << '\n';
+    //    prev_val = get_bits(reg[10], 7, 0);
+    //  exit(0);
+    //}
+
+    // if (pc == 0x10e8) {
+    //   ++trouble;
+    //   if (trouble == 50) {
+    //    exit(0);
+    //   }
+    //  std::cout << "Problem Detected\n";
+    //}
   }
 
   return 0;

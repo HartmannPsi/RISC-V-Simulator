@@ -2,16 +2,29 @@
 #include "headers.hpp"
 #include "main.hpp"
 #include "utility.hpp"
-#include <sys/types.h>
+//#include <sys/types.h>
 
 bool LSBuffer::full() const { return buffer.full(); }
 
 bool LSBuffer::empty() const { return buffer.empty(); }
 
-void LSBuffer::clear() {
+void LSBuffer::clear_after(int32_t serial) {
+
+  Queue<LSInst, 6> tmp_queue;
+
   while (!buffer.empty()) {
+    const auto &t = buffer.top();
+    if (t.serial < serial) {
+      tmp_queue.push(t);
+    }
+
     buffer.top() = LSInst();
     buffer.pop();
+  }
+
+  while (!tmp_queue.empty()) {
+    buffer.push(tmp_queue.top());
+    tmp_queue.pop();
   }
 }
 
@@ -141,6 +154,11 @@ void LSBuffer::execute() {
     return;
   }
 
+  // if (buf.serial == 0xc5) {
+  //   std::cout << "SER: c5"
+  //             << " LOAD FROM 0x" << std::hex << buf.vj + buf.imm << '\n';
+  // }
+
   if (buf.state == 3) { // carry out & broadcast
     int32_t res = 0;
 
@@ -169,6 +187,11 @@ void LSBuffer::execute() {
 
     } else if (buf.mode == LW) {
       res = fetch(buf.vj + buf.imm);
+
+      // if (buf.vj + buf.imm == 0x1394) {
+      //   std::cout << "LOAD " << res << " FROM 0x1394\n";
+      // }
+
       rob.submit(buf.serial, res);
 
     } else if (buf.mode == SB) {
@@ -187,10 +210,13 @@ void LSBuffer::execute() {
       mem[buf.vj + buf.imm + 2] = uint8_t(get_bits(buf.vk, 23, 16));
       mem[buf.vj + buf.imm + 3] = uint8_t(get_bits(buf.vk, 31, 24));
 
-      // std::cout << " -> " << uint32_t(mem[buf.vj + buf.imm]) << ' '
-      //           << uint32_t(mem[buf.vj + buf.imm + 1]) << ' '
-      //           << uint32_t(mem[buf.vj + buf.imm + 2]) << ' '
-      //           << uint32_t(mem[buf.vj + buf.imm + 3]) << '\n';
+      // if (buf.vj + buf.imm == 0x1394) {
+      //   std::cout << "STORE " << buf.vk << " TO 0x1394\n";
+      // }
+      //  std::cout << " -> " << uint32_t(mem[buf.vj + buf.imm]) << ' '
+      //            << uint32_t(mem[buf.vj + buf.imm + 1]) << ' '
+      //            << uint32_t(mem[buf.vj + buf.imm + 2]) << ' '
+      //            << uint32_t(mem[buf.vj + buf.imm + 3]) << '\n';
     }
 
     buf.clear();

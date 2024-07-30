@@ -2,7 +2,8 @@
 #include "headers.hpp"
 #include "main.hpp"
 #include "utility.hpp"
-#include <functional>
+
+//#define DEBUG
 
 std::pair<bool, bool> BranchPredictor::read(const Inst &inst) {
 
@@ -55,10 +56,15 @@ void BranchPredictor::monitor() {
       brq.clear();
       foq.clear();
       rs.clear();
-      lsb.clear();
+      lsb.clear_after(cdb.src());
       rob.clear();
       reg_depend_clear();
       nxt_pc = branch.fail;
     }
   }
 }
+
+// void BranchPredictor::clear_after(int32_t serial) {
+// for (int i = 0; i != 100; ++i) {
+//}
+//}

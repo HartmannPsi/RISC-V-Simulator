@@ -1,10 +1,10 @@
 #include "headers.hpp"
 #include "main.hpp"
 #include "utility.hpp"
-#include <asm-generic/errno.h>
 #include <iomanip>
 #include <iostream>
-//#include <pthread.h>
+
+//#define DEBUG
 
 void FpOpQueue::lock() { locked = true; }
 

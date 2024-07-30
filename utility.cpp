@@ -115,13 +115,19 @@ void print_mem(int32_t beg, int32_t end) {
 void print_reg() {
   std::cout << "REG STATE:\n";
   for (int32_t addr = 0; addr != 32; ++addr) {
+
+    // if (reg[addr] == 0 && reg_depend[addr] == 0) {
+    //   continue;
+    // }
+
     std::cout << "reg " << std::setfill('0') << std::setw(2) << addr << ": "
               << std::setfill('0') << std::setw(8) << std::hex << reg[addr];
-    std::cout << " DEP: ";
-    if (reg_depend[addr] != 0) {
-      std::cout << reg_depend[addr] << '\n';
-    } else {
-      std::cout << "NONE\n";
-    }
+    std::cout << '\n';
+    // std::cout << " DEP: ";
+    // if (reg_depend[addr] != 0) {
+    //   std::cout << reg_depend[addr] << '\n';
+    // } else {
+    //   std::cout << "NONE\n";
+    // }
   }
 }

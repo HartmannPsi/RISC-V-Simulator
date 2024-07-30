@@ -40,7 +40,7 @@ public:
 
   void execute();
 
-  void clear();
+  void clear_after(int32_t serial);
 
   void print();
 
