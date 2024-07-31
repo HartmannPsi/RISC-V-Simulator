@@ -81,7 +81,7 @@ bool FpOpQueue::fetch() {
     nxt_pc = pc + 4;
     opq.push(inst);
     if (inst.opcode == 0b010'0011) { // store insts
-      rob.push(inst.serial, false);
+      rob.push(inst.serial);
     } else {
       rob.push(inst.serial);
     }
@@ -104,6 +104,11 @@ bool FpOpQueue::launch() {
 
     const bool res = lsb.read(inst);
     if (res) {
+
+      // if (inst.opcode == 0b010'0011) { // store insts
+      //   rob.submit(inst.serial, 0);
+      // }
+
       opq.pop();
       return true;
     } else {

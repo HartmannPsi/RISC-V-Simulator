@@ -37,6 +37,6 @@ void input_process();
 
 void print_mem(int32_t beg, int32_t end);
 
-void print_reg();
+void print_reg(bool no_dep = false);
 
 #endif

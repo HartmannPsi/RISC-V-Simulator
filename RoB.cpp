@@ -67,3 +67,10 @@ void ReorderBuffer::print_first() {
   std::cout << "SER: " << tmp.src << " BUSY: " << (tmp.busy ? "TRUE" : "FALSE")
             << " VAL: " << tmp.val << '\n';
 }
+
+int32_t ReorderBuffer::top() {
+  if (buf_queue.empty()) {
+    return 0;
+  }
+  return buf_queue.top().src;
+}

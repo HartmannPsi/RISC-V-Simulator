@@ -23,7 +23,7 @@ LSBuffer lsb;
 BranchPredictor bp;
 
 int32_t prev_reg[32] = {};
-/*
+
 void comp() {
   bool output = false;
   for (int i = 0; i != 32; ++i) {
@@ -34,9 +34,9 @@ void comp() {
   }
 
   if (output) {
-    print_reg();
+    print_reg(true);
   }
-}*/
+}
 
 void stopat(int t) {
   if (clk > t) {
@@ -46,7 +46,7 @@ void stopat(int t) {
 
 int main() {
 
-  // int trouble = 0;
+  int trouble = 0;
 
   // int prev_val = 0;
 
@@ -100,6 +100,7 @@ int main() {
 
 #endif
     // comp();
+    // stopat(0xffff);
 
     // if (prev_val != get_bits(reg[10], 7, 0)) {
     //    std::cout << "a0 LOWBIT:" << std::dec << get_bits(reg[10], 7, 0)
@@ -108,13 +109,13 @@ int main() {
     //  exit(0);
     //}
 
-    // if (pc == 0x10e8) {
+    // if (pc == 0x1084) {
     //   ++trouble;
     //   if (trouble == 50) {
-    //    exit(0);
+    //     exit(0);
     //   }
-    //  std::cout << "Problem Detected\n";
-    //}
+    //   // std::cout << "Problem Detected\n";
+    // }
   }
 
   return 0;

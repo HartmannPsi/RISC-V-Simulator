@@ -34,6 +34,8 @@ public:
   void clear();
 
   void print_first();
+
+  int32_t top();
 };
 
 #endif

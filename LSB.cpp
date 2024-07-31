@@ -106,9 +106,10 @@ void LSBuffer::execute() {
     if (buf.mode == NONE) {
       continue;
     }
+
     const bool flag = (buf.qj != 0 || buf.qk != 0);
 
-    if (!buf.ready && cdb.active() && cdb.src() == buf.serial) {
+    if (!buf.ready && rob.top() == buf.serial) {
       buf.ready = true;
     }
 
@@ -131,6 +132,7 @@ void LSBuffer::execute() {
   auto &buf = buffer.top();
   const bool flag = (buf.qj != 0 || buf.qk != 0);
 
+  /*
   if (buf.qj != 0 && cdb.src() == buf.qj) {
     buf.vj = cdb.val();
     buf.qj = 0;
@@ -138,7 +140,7 @@ void LSBuffer::execute() {
   if (buf.qk != 0 && cdb.src() == buf.qk) {
     buf.vk = cdb.val();
     buf.qk = 0;
-  }
+  }*/
   if (flag) {
     if (buf.qj == 0 && buf.qk == 0) {
       buf.state = 0; // prepared
@@ -146,9 +148,10 @@ void LSBuffer::execute() {
     return;
   }
 
+  /*
   if (!buf.ready && cdb.active() && cdb.src() == buf.serial) {
     buf.ready = true;
-  }
+  }*/
 
   if (!buf.ready) {
     return;
@@ -198,10 +201,12 @@ void LSBuffer::execute() {
       // std::cout << "SB: " << get_bits(buf.vk, 7, 0);
       mem[buf.vj + buf.imm] = uint8_t(get_bits(buf.vk, 7, 0));
       // std::cout << " -> " << uint32_t(mem[buf.vj + buf.imm]) << '\n';
+      rob.submit(buf.serial, 0);
 
     } else if (buf.mode == SH) {
       mem[buf.vj + buf.imm] = uint8_t(get_bits(buf.vk, 7, 0));
       mem[buf.vj + buf.imm + 1] = uint8_t(get_bits(buf.vk, 15, 8));
+      rob.submit(buf.serial, 0);
 
     } else if (buf.mode == SW) {
       // std::cout << "SW: " << get_bits(buf.vk, 31, 0);
@@ -209,6 +214,7 @@ void LSBuffer::execute() {
       mem[buf.vj + buf.imm + 1] = uint8_t(get_bits(buf.vk, 15, 8));
       mem[buf.vj + buf.imm + 2] = uint8_t(get_bits(buf.vk, 23, 16));
       mem[buf.vj + buf.imm + 3] = uint8_t(get_bits(buf.vk, 31, 24));
+      rob.submit(buf.serial, 0);
 
       // if (buf.vj + buf.imm == 0x1394) {
       //   std::cout << "STORE " << buf.vk << " TO 0x1394\n";
