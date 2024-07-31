@@ -67,12 +67,12 @@ int main() {
     pc = nxt_pc;
 
     cdb.execute();
+    reg_update();
     foq.try_unlock();
     foq.fetch();
     foq.launch();
     rs.execute();
     lsb.execute();
-    reg_update();
     bp.monitor();
 
     if (fetch(pc) == EOI && rob.empty()) {
