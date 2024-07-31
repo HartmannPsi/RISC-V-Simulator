@@ -80,7 +80,8 @@ int main() {
 
 #ifdef VIS
       std::cout << "clk: " << clk << " monitor rate: " << std::setprecision(5)
-                << bp.rate() << '\n';
+                << bp.rate() << " succeeded: " << bp.scn()
+                << " total: " << bp.brn() << '\n';
 #endif
 
       return 0;

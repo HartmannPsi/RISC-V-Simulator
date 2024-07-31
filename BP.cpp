@@ -2,8 +2,23 @@
 #include "headers.hpp"
 #include "main.hpp"
 #include "utility.hpp"
+#include <cmath>
 
 //#define DEBUG
+
+PredictFSM &BranchPredictor::distribute(int32_t addr) {
+  int32_t ind = get_bits(addr, 7, 0);
+
+  while (true) {
+
+    if (fsms[ind].addr == 0 || fsms[ind].addr == addr) {
+      fsms[ind].addr = addr;
+      return fsms[ind];
+    }
+
+    ind = (ind + 1) % 300;
+  }
+}
 
 std::pair<bool, bool> BranchPredictor::read(const Inst &inst) {
 
@@ -11,10 +26,14 @@ std::pair<bool, bool> BranchPredictor::read(const Inst &inst) {
   //   return {false, false};
   // }
 
-  const bool branch = predict();
+  auto addr = inst.addr;
+  auto &fsm = distribute(addr);
+
+  const bool branch = fsm.predict();
   BPUnit unit;
   unit.branch = branch;
   unit.src = inst.serial;
+  unit.addr = inst.addr;
   unit.fail = (branch ? pc + 4 : inst.imm);
   bool res = brq.push(unit);
 
@@ -40,6 +59,8 @@ void BranchPredictor::monitor() {
 #endif
     const bool res =
         (cdb.val() ? true : false); // true for taken and false for not
+
+    auto &fsm = distribute(branch.addr);
     fsm.update(res);
 
     if (res == branch.branch) { // prediction is right
