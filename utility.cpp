@@ -3,7 +3,6 @@
 #include "main.hpp"
 #include <iomanip>
 #include <iostream>
-#include <sstream>
 #include <string>
 
 // fetch 4-byte instruction from memory, litte-endian
@@ -115,10 +114,6 @@ void print_mem(int32_t beg, int32_t end) {
 void print_reg(bool no_dep) {
   std::cout << "REG STATE:\n";
   for (int32_t addr = 0; addr != 32; ++addr) {
-
-    // if (reg[addr] == 0 && reg_depend[addr] == 0) {
-    //   continue;
-    // }
 
     std::cout << "reg " << std::setfill('0') << std::setw(2) << addr << ": "
               << std::setfill('0') << std::setw(8) << std::hex << reg[addr];

@@ -2,7 +2,6 @@
 #include "headers.hpp"
 #include "main.hpp"
 #include "utility.hpp"
-#include <cmath>
 
 //#define DEBUG
 
@@ -21,10 +20,6 @@ PredictFSM &BranchPredictor::distribute(int32_t addr) {
 }
 
 std::pair<bool, bool> BranchPredictor::read(const Inst &inst) {
-
-  // if (brq.full()) {
-  //   return {false, false};
-  // }
 
   auto addr = inst.addr;
   auto &fsm = distribute(addr);
@@ -84,8 +79,3 @@ void BranchPredictor::monitor() {
     }
   }
 }
-
-// void BranchPredictor::clear_after(int32_t serial) {
-// for (int i = 0; i != 100; ++i) {
-//}
-//}

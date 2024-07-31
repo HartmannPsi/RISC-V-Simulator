@@ -61,8 +61,6 @@ public:
 
   ~BranchPredictor() {}
 
-  // bool predict() const { return fsm.predict(); }
-
   std::pair<bool, bool> read(const Inst &inst); // <branch, res>
 
   void monitor();

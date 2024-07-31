@@ -36,8 +36,6 @@ public:
 
   bool read(const Inst &inst);
 
-  // void update(int32_t src, int32_t res);
-
   void execute();
 
   void clear_after(int32_t serial);

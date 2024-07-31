@@ -24,7 +24,6 @@ void FpOpQueue::clear() {
 
 bool FpOpQueue::fetch() {
   if (opq.full()) {
-    // std::cout << "bruh" << std::endl;
     return false;
   }
   if (locked) {
@@ -63,11 +62,6 @@ bool FpOpQueue::fetch() {
 
     const auto bp_res = bp.read(inst);
 
-    // if (!bp_res.second) { // bp is full
-    //   nxt_pc = pc;
-    //   return false;
-    // }
-
     if (bp_res.first) { // branch
       nxt_pc = inst.imm;
     } else { // don't branch
@@ -97,17 +91,10 @@ bool FpOpQueue::launch() {
 
   auto &inst = opq.top();
 
-  // std::cout << "try launch ";
-  // inst.print();
-
   if (inst.opcode == 0b000'0011 || inst.opcode == 0b010'0011) { // ls insts
 
     const bool res = lsb.read(inst);
     if (res) {
-
-      // if (inst.opcode == 0b010'0011) { // store insts
-      //   rob.submit(inst.serial, 0);
-      // }
 
       opq.pop();
       return true;
@@ -117,19 +104,13 @@ bool FpOpQueue::launch() {
 
   } else { // alu insts
 
-    // std::cout << "alu ";
-
     const bool res = rs.read(inst);
     if (res) {
       opq.pop();
 
-      // std::cout << "yes";
-      // std::cout << std::endl;
       return true;
     } else {
 
-      // std::cout << "no";
-      // std::cout << std::endl;
       return false;
     }
   }

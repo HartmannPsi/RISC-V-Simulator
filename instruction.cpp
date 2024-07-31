@@ -40,14 +40,7 @@ void Inst::decode(int32_t command) {
 
   } else if (opcode == 0b110'0011) { // beq / bne / blt / bge / bltu / bgeu
     subop1 = get_subop1(command);
-    /*
-    if (subop1 == 0b000) {        // beq
-    } else if (subop1 == 0b001) { // bne
-    } else if (subop1 == 0b100) { // blt
-    } else if (subop1 == 0b101) { // bge
-    } else if (subop1 == 0b110) { // bltu
-    } else if (subop1 == 0b111) { // bgeu
-    }*/
+
     rs1 = get_bits(command, 19, 15);
     rs2 = get_bits(command, 24, 20);
     imm |= get_bits(command, 11, 8) << 1;
@@ -123,14 +116,6 @@ void Inst::print() {
   } else if (opcode == 0b110'0011) { // beq / bne / blt / bge / bltu / bgeu
     std::cout << "br? " << uint32_t(rs1) << ' ' << uint32_t(rs2) << ' ' << imm
               << '\n';
-    /*
-    if (subop1 == 0b000) {        // beq
-    } else if (subop1 == 0b001) { // bne
-    } else if (subop1 == 0b100) { // blt
-    } else if (subop1 == 0b101) { // bge
-    } else if (subop1 == 0b110) { // bltu
-    } else if (subop1 == 0b111) { // bgeu
-    }*/
 
   } else if (opcode == 0b000'0011) { // lb / lh / lw / lbu / lhu
     std::cout << "ld? " << uint32_t(rd) << ' ' << imm << '(' << uint32_t(rs1)
@@ -142,23 +127,11 @@ void Inst::print() {
                                      // slli / srli / srai
     std::cout << "opi? " << uint32_t(rd) << ' ' << uint32_t(rs1) << ' ' << imm
               << '\n';
-    // if (subop1 == 0b001) { // slli
-    //  shamt
-
-    //} else if (subop1 == 0b101) { // srli / srai
-    // shamt
-
-    //} else {
-    //}
 
   } else if (opcode == 0b011'0011) { // add / sub / sll / slt / sltu / xor / srl
                                      // sra / or / and
 
     std::cout << "op? " << uint32_t(rd) << ' ' << uint32_t(rs1) << ' '
               << uint32_t(rs2) << '\n';
-    // if (subop1 == 0b000) { // add / sub
-
-    //} else if (subop1 == 0b101) { // srl / sra
-    //}
   }
 }

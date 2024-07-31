@@ -1,5 +1,4 @@
 #pragma once
-#include "main.hpp"
 #ifndef UTILITY_HPP
 #define UTILITY_HPP
 

@@ -2,7 +2,6 @@
 #include "headers.hpp"
 #include "main.hpp"
 #include "utility.hpp"
-//#include <sys/types.h>
 
 bool LSBuffer::full() const { return buffer.full(); }
 
@@ -132,15 +131,6 @@ void LSBuffer::execute() {
   auto &buf = buffer.top();
   const bool flag = (buf.qj != 0 || buf.qk != 0);
 
-  /*
-  if (buf.qj != 0 && cdb.src() == buf.qj) {
-    buf.vj = cdb.val();
-    buf.qj = 0;
-  }
-  if (buf.qk != 0 && cdb.src() == buf.qk) {
-    buf.vk = cdb.val();
-    buf.qk = 0;
-  }*/
   if (flag) {
     if (buf.qj == 0 && buf.qk == 0) {
       buf.state = 0; // prepared
@@ -148,19 +138,9 @@ void LSBuffer::execute() {
     return;
   }
 
-  /*
-  if (!buf.ready && cdb.active() && cdb.src() == buf.serial) {
-    buf.ready = true;
-  }*/
-
   if (!buf.ready) {
     return;
   }
-
-  // if (buf.serial == 0xc5) {
-  //   std::cout << "SER: c5"
-  //             << " LOAD FROM 0x" << std::hex << buf.vj + buf.imm << '\n';
-  // }
 
   if (buf.state == 3) { // carry out & broadcast
     int32_t res = 0;
@@ -191,10 +171,6 @@ void LSBuffer::execute() {
     } else if (buf.mode == LW) {
       res = fetch(buf.vj + buf.imm);
 
-      // if (buf.vj + buf.imm == 0x1394) {
-      //   std::cout << "LOAD " << res << " FROM 0x1394\n";
-      // }
-
       rob.submit(buf.serial, res);
 
     } else if (buf.mode == SB) {
@@ -215,14 +191,6 @@ void LSBuffer::execute() {
       mem[buf.vj + buf.imm + 2] = uint8_t(get_bits(buf.vk, 23, 16));
       mem[buf.vj + buf.imm + 3] = uint8_t(get_bits(buf.vk, 31, 24));
       rob.submit(buf.serial, 0);
-
-      // if (buf.vj + buf.imm == 0x1394) {
-      //   std::cout << "STORE " << buf.vk << " TO 0x1394\n";
-      // }
-      //  std::cout << " -> " << uint32_t(mem[buf.vj + buf.imm]) << ' '
-      //            << uint32_t(mem[buf.vj + buf.imm + 1]) << ' '
-      //            << uint32_t(mem[buf.vj + buf.imm + 2]) << ' '
-      //            << uint32_t(mem[buf.vj + buf.imm + 3]) << '\n';
     }
 
     buf.clear();
@@ -232,8 +200,6 @@ void LSBuffer::execute() {
     ++buf.state;
   }
 }
-
-// void LSBuffer::update(int32_t src, int32_t res) {}
 
 void LSBuffer::print() {
   std::cout << "LSB STATE:\n";

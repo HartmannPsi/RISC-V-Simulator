@@ -16,8 +16,6 @@ void CommonDataBus::broadcast(int32_t name, int32_t val) {
 void CommonDataBus::execute() {
   _src = nxt_src;
   value = nxt_value;
-  // print();
-  // reset();
 }
 
 void CommonDataBus::reset() {

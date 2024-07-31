@@ -1,7 +1,6 @@
 #include "RS.hpp"
 #include "headers.hpp"
 #include "main.hpp"
-#include <istream>
 
 ReservationStation::ReservationStation() {
   buffer[0].name = ALURS1;
@@ -44,18 +43,14 @@ void ReservationStation::clear() {
 
 bool ReservationStation::read(const Inst &inst) {
   if (full()) {
-    // std::cout << "B" << std::endl;
     return false;
   }
-
-  // std::cout << "A" << std::endl;
 
   auto &buf = buffer[free()];
   buf.busy = true;
   buf.qj = buf.qk = 0;
   buf.vj = buf.vk = buf.imm = 0;
   buf.serial = inst.serial;
-  // buf.inst = inst;
 
   if (inst.opcode == 0b011'0111) { // lui
     buf.imm = inst.imm;
@@ -63,7 +58,6 @@ bool ReservationStation::read(const Inst &inst) {
     reg_depend[inst.rd] = buf.serial;
     reg_depend[0] = 0;
     buf.mode = ADDI;
-    // std::cout << "C" << std::endl;
 
   } else if (inst.opcode == 0b001'0111) { // auipc
     buf.imm = inst.imm;
@@ -191,7 +185,6 @@ bool ReservationStation::read(const Inst &inst) {
   } else {
     buf.serial = 0;
     buf.busy = false;
-    // std::cout << "DDDD" << std::endl;
     return false;
   }
 
@@ -199,8 +192,6 @@ bool ReservationStation::read(const Inst &inst) {
 }
 
 void ReservationStation::execute() {
-
-  // print();
 
   for (int iter = 0; iter != 3; ++iter) {
     auto &buf = buffer[iter];
