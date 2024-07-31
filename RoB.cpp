@@ -1,7 +1,8 @@
 #include "RoB.hpp"
 #include "headers.hpp"
+#include "main.hpp"
 
-bool ReorderBuffer::push(int32_t _src, bool _busy) {
+bool ReorderBuffer::push(int32_t _src, uint8_t _dest, bool _busy) {
   if (buf_queue.full()) {
     throw ReorderBuffer();
     return false;
@@ -10,6 +11,7 @@ bool ReorderBuffer::push(int32_t _src, bool _busy) {
   RoBUnit tmp;
   tmp.busy = _busy;
   tmp.src = _src;
+  tmp.dest = _dest;
   buf_queue.push(tmp);
 
   return true;
@@ -36,8 +38,19 @@ bool ReorderBuffer::pop() {
 
   cdb.broadcast(buf_queue.top().src, buf_queue.top().val);
 
+  auto dest = buf_queue.top().dest;
+
+  if (dest != uint8_t(-1) && dest != 0) {
+    reg[dest] = buf_queue.top().val;
+    if (reg_depend[dest] == buf_queue.top().src) {
+      reg_depend[dest] = 0;
+    }
+  }
+
   buf_queue.top().busy = true;
   buf_queue.top().src = 0;
+  buf_queue.top().dest = -1;
+  buf_queue.top().val = 0;
   buf_queue.pop();
 
   return true;

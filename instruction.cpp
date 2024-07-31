@@ -9,6 +9,7 @@ Inst::Inst(int32_t command) { decode(command); }
 void Inst::decode(int32_t command) {
 
   // TODO: SIGNED-EXTEND
+  rd = -1;
 
   addr = pc;
   serial = clk + 1;

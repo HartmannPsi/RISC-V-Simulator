@@ -49,7 +49,7 @@ bool FpOpQueue::fetch() {
     nxt_pc = inst.imm;
     inst.imm = pc + 4; // store to some regs
     opq.push(inst);
-    rob.push(inst.serial);
+    rob.push(inst.serial, inst.rd);
 
   } else if (inst.opcode == 0b110'0111) { // jalr
 
@@ -57,7 +57,7 @@ bool FpOpQueue::fetch() {
     unlock_inst = inst.serial;
     nxt_pc = pc;
     opq.push(inst);
-    rob.push(inst.serial);
+    rob.push(inst.serial, inst.rd);
 
   } else if (inst.opcode == 0b110'0011) { // branch's
 
@@ -74,16 +74,16 @@ bool FpOpQueue::fetch() {
       nxt_pc = pc + 4;
     }
     opq.push(inst);
-    rob.push(inst.serial);
+    rob.push(inst.serial, inst.rd);
 
   } else {
 
     nxt_pc = pc + 4;
     opq.push(inst);
     if (inst.opcode == 0b010'0011) { // store insts
-      rob.push(inst.serial);
+      rob.push(inst.serial, inst.rd);
     } else {
-      rob.push(inst.serial);
+      rob.push(inst.serial, inst.rd);
     }
   }
 

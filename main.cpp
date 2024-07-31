@@ -67,7 +67,7 @@ int main() {
     pc = nxt_pc;
 
     cdb.execute();
-    reg_update();
+    // reg_update();
     foq.try_unlock();
     foq.fetch();
     foq.launch();
@@ -109,12 +109,12 @@ int main() {
     //  exit(0);
     //}
 
-    // if (pc == 0x1084) {
+    // if (reg[0] == 0x1084) {
     //   ++trouble;
     //   if (trouble == 50) {
     //     exit(0);
     //   }
-    //   // std::cout << "Problem Detected\n";
+    //  std::cout << "Problem Detected\n";
     // }
   }
 

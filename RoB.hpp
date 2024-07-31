@@ -9,7 +9,7 @@
 struct RoBUnit {
   bool busy = true;
   int32_t src = 0;
-  // int8_t dest = -1;
+  uint8_t dest = -1;
   int32_t val = 0;
 };
 
@@ -21,7 +21,7 @@ public:
 
   ~ReorderBuffer() {}
 
-  bool push(int32_t _src, bool _busy = true);
+  bool push(int32_t _src, uint8_t _dest, bool _busy = true);
 
   bool empty() const;
 
