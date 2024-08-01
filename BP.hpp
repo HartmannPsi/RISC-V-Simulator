@@ -55,6 +55,7 @@ class BranchPredictor {
   PredictFSM fsms[300];
   int32_t branch_num = 0, success_num = 0;
   Queue<BPUnit, 100> brq;
+  // bool fail = false;
 
 public:
   BranchPredictor() {}
@@ -72,6 +73,8 @@ public:
   int32_t scn() { return success_num; }
 
   PredictFSM &distribute(int32_t addr);
+
+  // bool rectify() { return fail; }
 };
 
 #endif

@@ -76,6 +76,7 @@ void BranchPredictor::monitor() {
       rob.clear();
       reg_depend_clear();
       nxt_pc = branch.fail;
+      nxt_pc_src = 2;
     }
   }
 }

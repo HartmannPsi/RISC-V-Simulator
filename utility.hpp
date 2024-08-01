@@ -38,4 +38,6 @@ void print_mem(int32_t beg, int32_t end);
 
 void print_reg(bool no_dep = false);
 
+void step_pc();
+
 #endif

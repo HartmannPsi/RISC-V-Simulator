@@ -63,6 +63,7 @@ extern int32_t &pc_depend;
 extern uint8_t mem[1 << 20];
 extern int32_t clk;
 extern int32_t nxt_pc;
+extern int8_t nxt_pc_src;
 
 class CommonDataBus;
 extern CommonDataBus cdb;

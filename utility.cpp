@@ -129,3 +129,8 @@ void print_reg(bool no_dep) {
     }
   }
 }
+
+void step_pc() {
+  pc = nxt_pc;
+  nxt_pc_src = 0;
+}

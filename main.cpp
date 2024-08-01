@@ -14,6 +14,7 @@ int32_t &pc_depend = reg_depend[32];
 uint8_t mem[1 << 20] = {};
 int32_t clk = 0;
 int32_t nxt_pc = 0;
+int8_t nxt_pc_src = 0; // 0 for none, 1 for foq, 2 for bp
 
 CommonDataBus cdb;
 ReservationStation rs;
@@ -56,13 +57,15 @@ int main() {
 #ifdef DEBUG
     std::cout << "-------------------------------------------\n";
 #endif
-    pc = nxt_pc;
-
+    step_pc();
     cdb.execute();
     // reg_update();
-    foq.try_unlock();
-    foq.fetch();
-    foq.launch();
+    {
+      foq.try_unlock();
+      foq.fetch();
+      foq.launch();
+    }
+
     rs.execute();
     lsb.execute();
     bp.monitor();

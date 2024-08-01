@@ -38,14 +38,19 @@ bool FpOpQueue::fetch() {
 #endif
 
   if (::fetch(pc) == EOI) { // li a0 255
-    nxt_pc = pc;
+    if (nxt_pc_src == 0) {
+      nxt_pc = pc;
+      nxt_pc_src = 1;
+    }
 
     return true;
   }
 
   if (inst.opcode == 0b110'1111) { // jal
-
-    nxt_pc = inst.imm;
+    if (nxt_pc_src == 0) {
+      nxt_pc = inst.imm;
+      nxt_pc_src = 1;
+    }
     inst.imm = pc + 4; // store to some regs
     opq.push(inst);
     rob.push(inst.serial, inst.rd);
@@ -54,7 +59,10 @@ bool FpOpQueue::fetch() {
 
     lock();
     unlock_inst = inst.serial;
-    nxt_pc = pc;
+    if (nxt_pc_src == 0) {
+      nxt_pc = pc;
+      nxt_pc_src = 1;
+    }
     opq.push(inst);
     rob.push(inst.serial, inst.rd);
 
@@ -63,16 +71,24 @@ bool FpOpQueue::fetch() {
     const auto bp_res = bp.read(inst);
 
     if (bp_res.first) { // branch
-      nxt_pc = inst.imm;
+      if (nxt_pc_src == 0) {
+        nxt_pc = inst.imm;
+        nxt_pc_src = 1;
+      }
     } else { // don't branch
-      nxt_pc = pc + 4;
+      if (nxt_pc_src == 0) {
+        nxt_pc = pc + 4;
+        nxt_pc_src = 1;
+      }
     }
     opq.push(inst);
     rob.push(inst.serial, inst.rd);
 
   } else {
-
-    nxt_pc = pc + 4;
+    if (nxt_pc_src == 0) {
+      nxt_pc = pc + 4;
+      nxt_pc_src = 1;
+    }
     opq.push(inst);
     if (inst.opcode == 0b010'0011) { // store insts
       rob.push(inst.serial, inst.rd);
