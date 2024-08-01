@@ -58,17 +58,15 @@ int main() {
     std::cout << "-------------------------------------------\n";
 #endif
     step_pc();
-    cdb.execute();
-    // reg_update();
-    {
-      foq.try_unlock();
-      foq.fetch();
-      foq.launch();
-    }
 
-    rs.execute();
-    lsb.execute();
+    // reg_update();
+
+    foq.execute();
+    cdb.execute();
     bp.monitor();
+    lsb.execute();
+    rs.execute();
+    rob.pop();
 
     if (fetch(pc) == EOI && rob.empty()) {
       std::cout << std::dec << get_bits(reg[10], 7, 0) << '\n';
@@ -82,7 +80,6 @@ int main() {
       return 0;
     }
 
-    rob.pop();
     ++clk;
 
 #ifdef DEBUG

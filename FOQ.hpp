@@ -27,6 +27,12 @@ public:
   void clear();
 
   void print_top();
+
+  void execute() {
+    try_unlock();
+    fetch();
+    launch();
+  }
 };
 
 #endif

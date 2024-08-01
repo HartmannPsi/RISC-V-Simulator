@@ -308,8 +308,10 @@ void ReservationStation::execute() {
     } else { // jalr
       res = pc + 4;
 
-      nxt_pc = (buf.vj + buf.imm) & (~1);
-      nxt_pc_src = 1;
+      if (nxt_pc_src != 2) {
+        nxt_pc = (buf.vj + buf.imm) & (~1);
+        nxt_pc_src = 1;
+      }
     }
 
     update(buf.serial, res);
