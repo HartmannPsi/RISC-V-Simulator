@@ -14,7 +14,7 @@ int32_t &pc_depend = reg_depend[32];
 uint8_t mem[1 << 20] = {};
 int32_t clk = 0;
 int32_t nxt_pc = 0;
-int8_t nxt_pc_src = 0; // 0 for none, 1 for foq, 2 for bp
+int8_t nxt_pc_src = 0; // 0 for none, 1 for foq, 2 for jalr, 3 for bp
 
 CommonDataBus cdb;
 ReservationStation rs;
@@ -57,16 +57,18 @@ int main() {
 #ifdef DEBUG
     std::cout << "-------------------------------------------\n";
 #endif
+
+    rob.pop();
+
+    lsb.execute();
+
+    rs.execute();
+
+    cdb.execute();
+
     step_pc();
 
-    // reg_update();
-
     foq.execute();
-    cdb.execute();
-    bp.monitor();
-    lsb.execute();
-    rs.execute();
-    rob.pop();
 
     if (fetch(pc) == EOI && rob.empty()) {
       std::cout << std::dec << get_bits(reg[10], 7, 0) << '\n';

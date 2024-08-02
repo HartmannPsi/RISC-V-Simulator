@@ -140,3 +140,10 @@ void FpOpQueue::print_top() {
   }
   opq.top().print();
 }
+
+void FpOpQueue::execute() {
+  try_unlock();
+  fetch();
+  launch();
+  bp.monitor();
+}

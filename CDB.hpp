@@ -7,7 +7,7 @@
 
 class CommonDataBus {
   int32_t value = 0, nxt_value = 0;
-  int32_t _src = 0, nxt_src = 0;
+  int32_t _src = 0, _nxt_src = 0;
 
 public:
   CommonDataBus() {}
@@ -19,6 +19,10 @@ public:
   int32_t val() const;
 
   int32_t src() const;
+
+  int32_t nxt_val() const;
+
+  int32_t nxt_src() const;
 
   void broadcast(int32_t name, int32_t val);
 

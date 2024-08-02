@@ -8,23 +8,27 @@ int32_t CommonDataBus::val() const { return value; }
 
 int32_t CommonDataBus::src() const { return _src; }
 
+int32_t CommonDataBus::nxt_val() const { return nxt_value; }
+
+int32_t CommonDataBus::nxt_src() const { return _nxt_src; }
+
 void CommonDataBus::broadcast(int32_t name, int32_t val) {
-  nxt_src = name;
+  _nxt_src = name;
   nxt_value = val;
 }
 
 void CommonDataBus::execute() {
-  _src = nxt_src;
+  _src = _nxt_src;
   value = nxt_value;
 }
 
 void CommonDataBus::reset() {
-  nxt_src = 0;
+  _nxt_src = 0;
   nxt_value = 0;
 }
 
 void CommonDataBus::clear() {
-  _src = nxt_src = 0;
+  _src = _nxt_src = 0;
   value = nxt_value = 0;
 }
 

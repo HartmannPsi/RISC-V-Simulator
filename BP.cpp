@@ -47,13 +47,13 @@ void BranchPredictor::monitor() {
 
   const auto &branch = brq.top();
 
-  if (branch.src == cdb.src()) {
+  if (branch.src == cdb.nxt_src()) {
 
 #ifdef DEBUG
     std::cout << "BRANCH MONITORED: ";
 #endif
     const bool res =
-        (cdb.val() ? true : false); // true for taken and false for not
+        (cdb.nxt_val() ? true : false); // true for taken and false for not
 
     auto &fsm = distribute(branch.addr);
     fsm.update(res);
@@ -76,7 +76,7 @@ void BranchPredictor::monitor() {
       rob.clear();
       reg_depend_clear();
       nxt_pc = branch.fail;
-      nxt_pc_src = 2;
+      nxt_pc_src = 3;
     }
   }
 }

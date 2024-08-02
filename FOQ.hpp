@@ -3,6 +3,7 @@
 #define FOQ_HPP
 
 #include "instruction.hpp"
+//#include "main.hpp"
 #include "queue.hpp"
 #include <cstdint>
 
@@ -28,11 +29,7 @@ public:
 
   void print_top();
 
-  void execute() {
-    try_unlock();
-    fetch();
-    launch();
-  }
+  void execute();
 };
 
 #endif
